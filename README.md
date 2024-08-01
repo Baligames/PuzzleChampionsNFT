@@ -1,5 +1,8 @@
 # contract-template
 
+## Reference
+- forked from : https://github.com/axieinfinity/contract-template/tree/feature/nft-contract-template
+
 ## Development
 
 - Use Foundry:
