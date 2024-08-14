@@ -1,17 +1,17 @@
-import { PuzzleChampionsNFT__factory } from '../../typechain-types';
+import { ChampionChestNFT__factory } from '../../typechain-types';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 import TransparentUpgradeableProxy from 'hardhat-deploy/extendedArtifacts/TransparentUpgradeableProxy.json';
 
-const ercInterface = PuzzleChampionsNFT__factory.createInterface();
+const ercInterface = ChampionChestNFT__factory.createInterface();
 
 const deploy = async ({ getNamedAccounts, deployments, network }: HardhatRuntimeEnvironment) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
-  const logicContract = await deployments.get('PuzzleChampionsNFTLogic');
+  const logicContract = await deployments.get('ChampionChestNFTLogic');
 
   const data = ercInterface.encodeFunctionData('initialize',[deployer,deployer]);
 
-  await deploy('PuzzleChampionsNFT', {  // PuzzleChampionsNFT Proxy
+  await deploy('ChampionChestNFT', {  // ChampionChestNFT Proxy
     contract: TransparentUpgradeableProxy,
     from: deployer,
     log: true,
@@ -19,7 +19,7 @@ const deploy = async ({ getNamedAccounts, deployments, network }: HardhatRuntime
   });
 };
 
-deploy.tags = ['PuzzleChampionsNFT'];
-deploy.dependencies = ['VerifyContracts', 'PuzzleChampionsNFTLogic'];
+deploy.tags = ['ChampionChestNFT'];
+deploy.dependencies = ['VerifyContracts', 'ChampionChestNFTLogic'];
 
 export default deploy;

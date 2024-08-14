@@ -12,21 +12,21 @@ import { IAccessControlEnumerableUpgradeable } from
 import { IERC721EnumerableUpgradeable } from
   "@openzeppelin/contracts-upgradeable/interfaces/IERC721EnumerableUpgradeable.sol";
 import {
-  PuzzleChampionsNFT,
+  ChampionChestNFT,
   ERC721CommonUpgradeable,
   ERC721PresetMinterPauserAutoIdCustomizedUpgradeable
-} from "src/mock/PuzzleChampionsNFT.sol";
+} from "src/mock/ChampionChestNFT.sol";
 import { IERC721Common } from "src/interfaces/IERC721Common.sol";
 import { IERC721PresetMinterPauserAutoIdCustomized } from "src/interfaces/IERC721PresetMinterPauserAutoIdCustomized.sol";
 import { IERC721State } from "src/interfaces/IERC721State.sol";
 
-contract PuzzleChampionsNFT_Test is Test {
+contract ChampionChestNFT_Test is Test {
   using Strings for uint256;
 
   event NonceUpdated(uint256 indexed tokenId, uint256 indexed nonce);
 
-  string public constant NAME = "PuzzleChampionsNFT";
-  string public constant SYMBOL = "PUZZ_CHAMP";
+  string public constant NAME = "ChampionChestNFT";
+  string public constant SYMBOL = "CHAMP_CHEST";
   string public constant BASE_URI = "https://nft.axie-champions.com/";
 
   address internal _proxyAdmin;
@@ -40,8 +40,8 @@ contract PuzzleChampionsNFT_Test is Test {
     bytes memory initializeData =
       abi.encodeCall(ERC721PresetMinterPauserAutoIdCustomizedUpgradeable.initialize, (NAME, SYMBOL, BASE_URI));
     TransparentUpgradeableProxy proxy =
-      new TransparentUpgradeableProxy(address(new PuzzleChampionsNFT()), _proxyAdmin, initializeData);
-    _testToken = PuzzleChampionsNFT(address(proxy));
+      new TransparentUpgradeableProxy(address(new ChampionChestNFT()), _proxyAdmin, initializeData);
+    _testToken = ChampionChestNFT(address(proxy));
   }
 
   function testName() public virtual {
