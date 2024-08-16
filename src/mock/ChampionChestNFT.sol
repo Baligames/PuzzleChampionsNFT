@@ -20,7 +20,7 @@ contract ChampionChestNFT is Initializable, ERC1155Upgradeable, OwnableUpgradeab
     Counters.Counter private _tokenIds;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    uint256 public constant FT_ID = 0;
+    uint256 public constant FT_ID = 1;
     uint256 public constant MINT_SIZE = 200000;
     uint256 public constant INITIAL_FT_SUPPLY = 100000000; // 1억 개의 초기 FT 공급량
 
@@ -39,7 +39,7 @@ contract ChampionChestNFT is Initializable, ERC1155Upgradeable, OwnableUpgradeab
         {
             "name": "Champion Chest NFT",
             "description": "This is a unique NFT with cool properties",
-            "image": "https://nft.axie-champions.com/images/chest.png",
+            "image": "https://images.axie-champions.com/chest.png",
             "attributes": [
                 {"chest_type": "gacha", "value": "normal"}
             ]

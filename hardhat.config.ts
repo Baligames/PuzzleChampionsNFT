@@ -11,7 +11,7 @@ task('champions', 'Champions task').setAction(champions);
 
 const DEFAULT_MNEMONIC = 'title spike pink garlic hamster sorry few damage silver mushroom clever window';
 
-const { TESTNET_PK, TESTNET_URL, MAINNET_PK, MAINNET_URL } = process.env;
+const { TESTNET_PK, TESTNET_URL, MAINNET_PK, MAINNET_URL, DEPLOYER, MINTER } = process.env;
 
 if (!TESTNET_PK) {
   console.warn('TESTNET_PK is unset. Using DEFAULT_MNEMONIC');
@@ -26,14 +26,14 @@ if (!MAINNET_PK) {
 const testnet: NetworkUserConfig = {
   chainId: 2021,
   url: TESTNET_URL || 'https://saigon-testnet.roninchain.com/rpc',
-  accounts: TESTNET_PK ? [TESTNET_PK] : { mnemonic: DEFAULT_MNEMONIC },
+  accounts: TESTNET_PK ? [TESTNET_PK, MINTER] : { mnemonic: DEFAULT_MNEMONIC },
   blockGasLimit: 100000000,
 };
 
 const mainnet: NetworkUserConfig = {
   chainId: 2020,
   url: MAINNET_URL || 'https://api.roninchain.com/rpc',
-  accounts: MAINNET_PK ? [MAINNET_PK] : { mnemonic: DEFAULT_MNEMONIC },
+  accounts: MAINNET_PK ? [MAINNET_PK, MINTER] : { mnemonic: DEFAULT_MNEMONIC },
   blockGasLimit: 100000000,
 };
 
@@ -56,7 +56,8 @@ const config: HardhatUserConfig = {
     deploy: ['./scripts/deploy'],
   },
   namedAccounts: {
-    deployer: `privatekey://${TESTNET_PK}`,
+    deployer: `privatekey://${DEPLOYER}`,
+    minter: `privatekey://${MINTER}`,
   },
   networks: {
     hardhat: {

@@ -6,10 +6,10 @@ const ercInterface = ChampionChestNFT__factory.createInterface();
 
 const deploy = async ({ getNamedAccounts, deployments, network }: HardhatRuntimeEnvironment) => {
   const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
+  const { deployer, minter } = await getNamedAccounts();
   const logicContract = await deployments.get('ChampionChestNFTLogic');
 
-  const data = ercInterface.encodeFunctionData('initialize',[deployer,deployer]);
+  const data = ercInterface.encodeFunctionData('initialize',[deployer,minter]);
 
   await deploy('ChampionChestNFT', {  // ChampionChestNFT Proxy
     contract: TransparentUpgradeableProxy,
