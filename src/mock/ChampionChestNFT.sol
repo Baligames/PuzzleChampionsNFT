@@ -79,14 +79,14 @@ contract ChampionChestNFT is Initializable, ERC1155Upgradeable, OwnableUpgradeab
 
     function mint(address account, uint256 id, uint256 amount, bytes memory data)
         public
-        onlyOwner
+        onlyRole(MINTER_ROLE)
     {
         _mint(account, id, amount, data);
     }
 
     function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
         public
-        onlyOwner
+        onlyRole(MINTER_ROLE)
     {
         _mintBatch(to, ids, amounts, data);
     }
@@ -97,11 +97,11 @@ contract ChampionChestNFT is Initializable, ERC1155Upgradeable, OwnableUpgradeab
         override
     {}
 
-    function mintFT(address account, uint256 amount) public onlyOwner {
+    function mintFT(address account, uint256 amount) public onlyRole(MINTER_ROLE) {
         _mint(account, FT_ID, amount, "");
     }
 
-    function mintNFT(address account) public onlyOwner returns (uint256) {
+    function mintNFT(address account) public onlyRole(MINTER_ROLE) returns (uint256) {
         uint256 newTokenId = _tokenIds.current();
         _mint(account, newTokenId, 1, "");
         _tokenIds.increment();
