@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.19;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -8,11 +8,11 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-import { NFTLaunchpadCommon } from "../launchpad/NFTLaunchpadCommon.sol";
+import { NFTLaunchpadCommon } from "../../launchpad/NFTLaunchpadCommon.sol";
 import { AccessControl, Context } from "@openzeppelin/contracts/access/AccessControl.sol";
 
 
-contract ChampionChestNFT is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable, AccessControl, NFTLaunchpadCommon {
+contract ChampionGachaChestNFT1155Launchpad is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable, AccessControl, NFTLaunchpadCommon {
 
     using Counters for Counters.Counter;
     using Strings for uint256;
@@ -20,7 +20,7 @@ contract ChampionChestNFT is Initializable, ERC1155Upgradeable, OwnableUpgradeab
     Counters.Counter private _tokenIds;
 
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
-    uint256 public constant FT_ID = 1;
+    uint256 public constant FT_ID = 0;
     uint256 public constant MINT_SIZE = 200000;
     uint256 public constant INITIAL_FT_SUPPLY = 100000000; // 1억 개의 초기 FT 공급량
 
@@ -39,7 +39,7 @@ contract ChampionChestNFT is Initializable, ERC1155Upgradeable, OwnableUpgradeab
         {
             "name": "Champion Chest NFT",
             "description": "This is a unique NFT with cool properties",
-            "image": "https://images.axie-champions.com/chest.png",
+            "image": "https://nft.axie-champions.com/images/chest.png",
             "attributes": [
                 {"chest_type": "gacha", "value": "normal"}
             ]
@@ -79,14 +79,14 @@ contract ChampionChestNFT is Initializable, ERC1155Upgradeable, OwnableUpgradeab
 
     function mint(address account, uint256 id, uint256 amount, bytes memory data)
         public
-        onlyRole(MINTER_ROLE)
+        onlyOwner
     {
         _mint(account, id, amount, data);
     }
 
     function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
         public
-        onlyRole(MINTER_ROLE)
+        onlyOwner
     {
         _mintBatch(to, ids, amounts, data);
     }
@@ -97,11 +97,11 @@ contract ChampionChestNFT is Initializable, ERC1155Upgradeable, OwnableUpgradeab
         override
     {}
 
-    function mintFT(address account, uint256 amount) public onlyRole(MINTER_ROLE) {
+    function mintFT(address account, uint256 amount) public onlyOwner {
         _mint(account, FT_ID, amount, "");
     }
 
-    function mintNFT(address account) public onlyRole(MINTER_ROLE) returns (uint256) {
+    function mintNFT(address account) public onlyOwner returns (uint256) {
         uint256 newTokenId = _tokenIds.current();
         _mint(account, newTokenId, 1, "");
         _tokenIds.increment();

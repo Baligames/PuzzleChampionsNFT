@@ -1,21 +1,20 @@
 import { ethers, getNamedAccounts } from "hardhat";
 
-import { ChampionChestNFT__factory } from "./typechain-types";
+import { ChampionGachaChestNFT__factory } from "./typechain-types";
 
 /*
-deploying "ChampionChestNFTLogic" (tx: 0xe4c6475413062648f409f123080799252c43451baba026a221f32951a7ecab2b)...: deployed at 0x37191809ebB7f7d4208Ec3507844493CAc7B8714 with 2850823 gas
-deploying "ChampionChestNFT" (tx: 0x875fb913bfcdfa43162be31c59e4c1db2917e46e99b99f3531abeec39cafb4b2)...: deployed at 0x5D9Da2D5108Ca8eEf38D50AAcc5878F6Fb1ADc3A with 938115 gas
-verifying ChampionChestNFT (0x5D9Da2D5108Ca8eEf38D50AAcc5878F6Fb1ADc3A on chain 2021) ...
- => contract ChampionChestNFT is now verified
-verifying ChampionChestNFTLogic (0x37191809ebB7f7d4208Ec3507844493CAc7B8714 on chain 2021) ...
- => contract ChampionChestNFTLogic is now verified
-already verified: PuzzleChampionsNFT (0x594Ba40c719B7F49C2B5b71a4B14Cc7053c36730), skipping.
-already verified: PuzzleChampionsNFTLogic (0x7A43FcB12d67007160ADeF4ffCDD51A5C3825534), skipping. */
+deploying "ChampionGachaChestNFTLogic" (tx: 0x520ac91aeb0eb2a57d46a8d2a2fc367fae965638988e2f183924d30ede129b2c)...: deployed at 0x7dD108481F3bc6095E42B267c27a9bcFDE90Dcdb with 2850835 gas
+deploying "ChampionGachaChestNFT" (tx: 0x3c21ee5166807f6d4fb25fee4da1cbf29bf689c899201b00cabecf60c183e2eb)...: deployed at 0xE7a1E926cE68aA1d4Af7e88fc72fD2d3BC941480 with 938115 gas
+verifying ChampionGachaChestNFTLogic (0x7dD108481F3bc6095E42B267c27a9bcFDE90Dcdb on chain 2021) ...
+ => contract ChampionGachaChestNFTLogic is now verified
+verifying ChampionGachaChestNFT (0xE7a1E926cE68aA1d4Af7e88fc72fD2d3BC941480 on chain 2021) ...
+ => contract ChampionGachaChestNFT is now verified
+ */
 
 
 async function main() {
-    // 프록시 컨트랙트 주소 설정 (ChampionChestNFT 프록시 주소)
-    const proxyAddress = "0x5D9Da2D5108Ca8eEf38D50AAcc5878F6Fb1ADc3A";
+    // 프록시 컨트랙트 주소 설정 (ChampionGachaChestNFT 프록시 주소)
+    const proxyAddress = "0xE7a1E926cE68aA1d4Af7e88fc72fD2d3BC941480";
     
     // NFT를 받을 주소 설정
     const recipientAddress = "0x67da6779670edbbf2ec8657eeb9ddaf8b84fddda";
@@ -30,24 +29,24 @@ async function main() {
     //const MINTER_ROLE = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MINTER_ROLE"));
 
     // deployer 는 못하고 minter 권한 있는 계정만 가능. 민터 권한 발급
-    //const tx_grant = await ChampionChestNFT__factory.connect(proxyAddress, deployer).grantRole(MINTER_ROLE, minter.address);
+    //const tx_grant = await ChampionGachaChestNFT__factory.connect(proxyAddress, deployer).grantRole(MINTER_ROLE, minter.address);
     //const tx_receipt = await tx_grant.wait()
     //console.log("MINTER_ROLE granted to", tx_receipt);
   
-    // ChampionChestNFT 컨트랙트 인스턴스 생성
-    const championChestNFT = ChampionChestNFT__factory.connect(proxyAddress, minter) as ChampionChestNFT;    
+    // ChampionGachaChestNFT 컨트랙트 인스턴스 생성
+    const championGachaChestNFT = ChampionGachaChestNFT__factory.connect(proxyAddress, minter) as ChampionGachaChestNFT;    
   
     try {
 
       // 가스 추정
       //console.log("Estimating gas...");
-      //const estimatedGas = await championChestNFT.estimateGas.mintLaunchpad(recipientAddress, 1, "0x");
+      //const estimatedGas = await championGachaChestNFT.estimateGas.mintLaunchpad(recipientAddress, 1, "0x");
       //console.log("Estimated gas:", estimatedGas.toString())
 
       console.log("Minting NFT...");
       
       // mintLaunchpad 함수 호출
-      const tx = await championChestNFT.mintNFT(recipientAddress, {gasLimit: manualGasLimit});
+      const tx = await championGachaChestNFT.mintNFT(recipientAddress, {gasLimit: manualGasLimit});
       
       // 트랜잭션 대기
       const receipt = await tx.wait();
@@ -59,7 +58,7 @@ async function main() {
       console.log(`Successfully minted NFT with token ID ${tokenId} to ${recipientAddress}`);
   
       // 토큰 URI 확인
-      const tokenURI = await championChestNFT.uri(tokenId);
+      const tokenURI = await championGachaChestNFT.uri(tokenId);
       console.log(`Token URI: ${tokenURI}`);
   
     } catch (error) {
