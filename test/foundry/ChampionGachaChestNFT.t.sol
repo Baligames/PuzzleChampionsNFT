@@ -26,7 +26,7 @@ contract ChampionGachaChestNFT_Test is Test {
   event NonceUpdated(uint256 indexed tokenId, uint256 indexed nonce);
 
   string public constant NAME = "ChampionGachaChestNFT";
-  string public constant SYMBOL = "CHAMP_CHEST";
+  string public constant SYMBOL = "CHAMP_GACHA";
   string public constant BASE_URI = "https://nft.axie-champions.com/";
 
   address internal _proxyAdmin;

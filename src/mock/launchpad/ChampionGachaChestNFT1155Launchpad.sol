@@ -37,7 +37,7 @@ contract ChampionGachaChestNFT1155Launchpad is Initializable, ERC1155Upgradeable
     /*
         metadata sample:
         {
-            "name": "Champion Chest NFT",
+            "name": "Champion Gacha Chest NFT",
             "description": "This is a unique NFT with cool properties",
             "image": "https://nft.axie-champions.com/images/chest.png",
             "attributes": [

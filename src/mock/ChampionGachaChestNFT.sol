@@ -37,7 +37,7 @@ contract ChampionGachaChestNFT is Initializable, ERC1155Upgradeable, OwnableUpgr
     /*
         metadata sample:
         {
-            "name": "Champion Chest NFT",
+            "name": "Champion Gacha Chest NFT",
             "description": "This is a unique NFT with cool properties",
             "image": "https://images.axie-champions.com/chest.png",
             "attributes": [
