@@ -10,7 +10,7 @@ const deploy = async ({ getNamedAccounts, deployments, ethers }: HardhatRuntimeE
   });
 };
 
-deploy.tags = ['ChampionGachaChestNFTLogic'];
+deploy.tags = ['ChampionGachaChestNFT'];
 deploy.dependencies = ['VerifyContracts'];
 
 export default deploy;
