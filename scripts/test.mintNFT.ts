@@ -1,5 +1,6 @@
 require('dotenv').config();
 import { ethers, getNamedAccounts } from "hardhat";
+import { BigNumber } from 'ethers';
 import { ChampionGachaChestNFT__factory } from "./typechain-types";
 
 const { LOGIC_ADDRESS, PROXY_ADDRESS } = process.env;
@@ -13,10 +14,11 @@ async function main() {
   
     // Hardhat의 ethers 인스턴스 가져오기
     const [deployer,minter] = await ethers.getSigners();
+    //const { deployer, minter } = await getNamedAccounts();
 
     console.log("Using account:", minter.address);
 
-    const manualGasLimit = ethers.BigNumber.from("1000000");
+    const manualGasLimit = BigNumber.from("1000000");
     
     //const MINTER_ROLE = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("MINTER_ROLE"));
 
@@ -26,7 +28,7 @@ async function main() {
     //console.log("MINTER_ROLE granted to", tx_receipt);
   
     // ChampionGachaChestNFT 컨트랙트 인스턴스 생성
-    const championGachaChestNFT = ChampionGachaChestNFT__factory.connect(proxyAddress, minter) as ChampionGachaChestNFT;    
+    const championGachaChestNFT = ChampionGachaChestNFT__factory.connect(proxyAddress, minter) as ChampionGachaChestNFT;
   
     try {
 
