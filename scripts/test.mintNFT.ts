@@ -1,16 +1,12 @@
+require('dotenv').config();
 import { ethers, getNamedAccounts } from "hardhat";
-
 import { ChampionGachaChestNFT__factory } from "./typechain-types";
 
-/*
-deploying "ChampionGachaChestNFTLogic" (tx: 0x2844002b61f3ac653287b43102bcea3c66ad998847df147109ac9450f7adf855)...: deployed at 0xb3EdF649727c0E37eE8E51F637224994c1A0a087 with 2850835 gas
-deploying "ChampionGachaChestNFT" (tx: 0x497f65b38a3fc502ee1c61b15058f4f09f38c32d2237bf27407f28680dd9f136)...: deployed at 0xecBd016b9F8c5A795Ac2A928c11315d41428b301 with 938115 gas
- */
-
+const { LOGIC_ADDRESS, PROXY_ADDRESS } = process.env;
 
 async function main() {
     // 프록시 컨트랙트 주소 설정 (ChampionGachaChestNFT 프록시 주소)
-    const proxyAddress = "0xecBd016b9F8c5A795Ac2A928c11315d41428b301";
+    const proxyAddress = PROXY_ADDRESS;
     
     // NFT를 받을 주소 설정
     const recipientAddress = "0x67da6779670edbbf2ec8657eeb9ddaf8b84fddda";
