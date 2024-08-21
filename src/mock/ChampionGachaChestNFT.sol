@@ -111,6 +111,7 @@ contract ChampionGachaChestNFT is Initializable, ERC1155Upgradeable, OwnableUpgr
     /// @dev Mint NFTs for the launchpad.
     function mintLaunchpad(address to, uint256 quantity, bytes calldata /* extraData */ )
         external
+        virtual
         onlyRole(MINTER_ROLE)
         returns (uint256[] memory tokenIds, uint256[] memory amounts)
     {
