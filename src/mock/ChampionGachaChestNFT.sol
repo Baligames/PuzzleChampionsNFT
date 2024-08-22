@@ -47,8 +47,6 @@ contract ChampionGachaChestNFT is Initializable, ERC1155Upgradeable, OwnableUpgr
         __UUPSUpgradeable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, admin);
         _setupRole(MINTER_ROLE, minter);
-        //_tokenIds.increment(); // NFT ID 를 1부터 시작
-        //_mint(msg.sender, FT_ID, INITIAL_FT_SUPPLY, ""); // 1억 개의 FT를 owner에게 발행
         _baseURI = "https://nft.axie-champions.com/metadata/";
 
         string memory metadataURI = string(abi.encodePacked(_baseURI, "chest/", CHEST.toString(), ".json")); 
