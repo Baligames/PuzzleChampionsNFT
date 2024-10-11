@@ -146,22 +146,19 @@ contract PuzzleChampionsNFT1155Launchpad is Initializable, ERC1155Upgradeable, O
     }
 
     // Burn one chest owned by the given address and mint one capsule.
-    function mintCapsule(address to) external virtual onlyRole(MINTER_ROLE) {
+    function mintCapsule(address to, uint256 capsuleId ) external virtual onlyRole(MINTER_ROLE) {
         require(balanceOf(to, CHEST_ID) > 0, "Address must own at least one CHEST");
+        require(CAPSULE_TYPE1_ID <= capsuleId && capsuleId <= CAPSULE_TYPE5_ID, "capsule id exceeds capsule type range");
 
         // Burn one CHEST_ID from the address
         _burn(to, CHEST_ID, 1);
 
-        // Generate a pseudo-random number between 1 and 5
-        // 5현재는 5가지 캡슐 타입중 한개를 랜덤하게 부여 받음, TODO 차후에 확률 수정
-        uint256 randomNumber = (uint256(keccak256(abi.encodePacked(block.prevrandao, msg.sender))) % 5) + 1001;
-
-        _mint(to, randomNumber, 1, "");
+        _mint(to, capsuleId, 1, "");
     }
 
     // mint a champion NFT on address
     function mintChampion(address to, uint256 capsuleId, uint256 championId) external virtual onlyRole(MINTER_ROLE) {
-        require(CAPSULE_TYPE1_ID <=  capsuleId && capsuleId <= CAPSULE_TYPE5_ID, "capsule id exceeds capsule type range");
+        require(CAPSULE_TYPE1_ID <= capsuleId && capsuleId <= CAPSULE_TYPE5_ID, "capsule id exceeds capsule type range");
         require(balanceOf(to, capsuleId) > 0, "Address must own at least one Capsule type");
         require(CHAMPIONS_MIN_ID <= championId && championId <= CHAMPIONS_MAX_ID, "Champion ID exceeds CHAMPIONS_MAX_ID");
         require(_mintedChampionAddresses[championId] == address(0), "Champion ID already minted to an address");
