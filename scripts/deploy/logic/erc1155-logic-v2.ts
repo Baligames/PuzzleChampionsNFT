@@ -3,14 +3,14 @@ import { HardhatRuntimeEnvironment } from 'hardhat/types';
 const deploy = async ({ getNamedAccounts, deployments, ethers }: HardhatRuntimeEnvironment) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
-  await deploy('ChampionGachaChestNFTv2', {
-    contract: 'ChampionGachaChestNFTv2',
+  await deploy('PuzzleChampionsNFT', {
+    contract: 'PuzzleChampionsNFT',
     from: deployer,
     log: true,
   });
 };
 
-deploy.tags = ['ChampionGachaChestNFTv2'];
+deploy.tags = ['PuzzleChampionsNFT'];
 deploy.dependencies = ['VerifyContracts'];
 
 export default deploy;

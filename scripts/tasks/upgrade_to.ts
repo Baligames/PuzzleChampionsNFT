@@ -1,5 +1,5 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types/runtime';
-import { ChampionGachaChestNFT__factory } from "../typechain-types";
+import { PuzzleChampionsNFT__factory } from "../typechain-types";
 const { LOGIC_ADDRESS, PROXY_ADDRESS, UPGRADE_LOGIC } = process.env;
 
 export default async function upgrade_to(params: any, hre: HardhatRuntimeEnvironment): Promise<void> {
@@ -11,9 +11,9 @@ export default async function upgrade_to(params: any, hre: HardhatRuntimeEnviron
 
   //console.log(`Balance for 1st account ${await minter.getAddress()}: ${await minter.getBalance()}`);
 
-  const championGachaChestNFT = ChampionGachaChestNFT__factory.connect(proxyAddress, deplyer) as ChampionGachaChestNFT;
+  const puzzleChampionsNFT = PuzzleChampionsNFT__factory.connect(proxyAddress, deplyer) as PuzzleChampionsNFT;
 
-  const tx = await championGachaChestNFT.upgradeTo(UPGRADE_LOGIC);
+  const tx = await puzzleChampionsNFT.upgradeTo(UPGRADE_LOGIC);
 
   // 트랜잭션 대기
   const receipt = await tx.wait();      

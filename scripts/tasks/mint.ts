@@ -1,5 +1,5 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types/runtime';
-import { ChampionGachaChestNFT__factory } from "../typechain-types";
+import { PuzzleChampionsNFT__factory } from "../typechain-types";
 const { LOGIC_ADDRESS, PROXY_ADDRESS, UPGRADE_LOGIC } = process.env;
 
 export default async function mint(params: any, hre: HardhatRuntimeEnvironment): Promise<void> {
@@ -18,21 +18,21 @@ export default async function mint(params: any, hre: HardhatRuntimeEnvironment):
 
   //console.log(`Balance for 1st account ${await minter.getAddress()}: ${await minter.getBalance()}`);
 
-  const championGachaChestNFT = ChampionGachaChestNFT__factory.connect(proxyAddress, minter) as ChampionGachaChestNFT;
+  const puzzleChampionsNFT = PuzzleChampionsNFT__factory.connect(proxyAddress, minter) as PuzzleChampionsNFT;
 
   try {
 
     // 가스 추정
     //console.log("Estimating gas...");
-    //const estimatedGas = await championGachaChestNFT.estimateGas.mintLaunchpad(recipientAddress, 1, "0x");
+    //const estimatedGas = await puzzleChampionsNFT.estimateGas.mintLaunchpad(recipientAddress, 1, "0x");
     //console.log("Estimated gas:", estimatedGas.toString())
 
     console.log("Minting NFT...");
     
     // mint 함수 호출
-    // const tx = await championGachaChestNFT.mintNFT(recipientAddress, {gasLimit: manualGasLimit});
+    // const tx = await puzzleChampionsNFT.mintNFT(recipientAddress, {gasLimit: manualGasLimit});
     // mintLaunchpad 함수 호출
-    const tx = await championGachaChestNFT.mintLaunchpad(recipientAddress, 1, "0x", {gasLimit: manualGasLimit});
+    const tx = await puzzleChampionsNFT.mintLaunchpad(recipientAddress, 1, "0x", {gasLimit: manualGasLimit});
     
     // 트랜잭션 대기
     const receipt = await tx.wait();
@@ -44,7 +44,7 @@ export default async function mint(params: any, hre: HardhatRuntimeEnvironment):
     console.log(`Successfully mintLaunchpad NFT with token ID ${tokenId} to ${recipientAddress}`);
 
     // 토큰 URI 확인
-    const tokenURI = await championGachaChestNFT.uri(tokenId);
+    const tokenURI = await puzzleChampionsNFT.uri(tokenId);
     console.log(`Token URI: ${tokenURI}`);
 
   } catch (error) {
