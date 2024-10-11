@@ -56,3 +56,19 @@ yarn test
 ```bash
 yarn hardhat example
 ```
+
+## Compile
+```
+npx hardhat clean
+npx hardhat compile --network ronin-testnet
+```
+
+## Upgrade Contract
+```
+npx hardhat task_upgrade_to --network ronin-testnet
+```
+
+## mint Contract
+```
+npx hardhat task_mint --network ronin-testnet
+```
