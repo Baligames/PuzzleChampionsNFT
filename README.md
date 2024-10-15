@@ -33,13 +33,13 @@ git submodule update --init --recursive
 - Saigon testnet:
 
     ```bash
-    yarn deploy --network ronin-testnet
+    npx hardhat deploy --tags PuzzleChampionsNFT --network ronin-testnet
     ```
 
 - Ronin mainnet:
 
     ```bash
-    yarn deploy --network ronin-mainnet
+    npx hardhat deploy --tags PuzzleChampionsNFT --network ronin-mainnet
     ```
 
 ## Features

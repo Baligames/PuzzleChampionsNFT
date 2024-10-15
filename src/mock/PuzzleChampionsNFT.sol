@@ -38,6 +38,12 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     // 기본 URI
     string private _baseURI;
 
+    // 각 주소가 소유한 Champion ID를 저장하는 매핑
+    mapping(address => uint256[]) private _ownedChampions;
+
+    // Champion ID를 소유한 주소의 인덱스를 저장하는 매핑
+    mapping(uint256 => uint256) private _ownedChampionIndex;
+
     function initialize(address admin, address minter) initializer public {
         __ERC1155_init("");
         __Ownable_init();
@@ -128,22 +134,20 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     }
 
     // Burn one chest owned by the given address and mint one capsule.
-    function mintCapsule(address to) external virtual onlyRole(MINTER_ROLE) {
+    function mintCapsule(address to, uint256 capsuleId ) external virtual onlyRole(MINTER_ROLE)
+    {
         require(balanceOf(to, CHEST_ID) > 0, "Address must own at least one CHEST");
+        require(CAPSULE_TYPE1_ID <= capsuleId && capsuleId <= CAPSULE_TYPE5_ID, "capsule id exceeds capsule type range");
 
         // Burn one CHEST_ID from the address
         _burn(to, CHEST_ID, 1);
 
-        // Generate a pseudo-random number between 1 and 5
-        // 5현재는 5가지 캡슐 타입중 한개를 랜덤하게 부여 받음, TODO 차후에 확률 수정
-        uint256 randomNumber = (uint256(keccak256(abi.encodePacked(block.prevrandao, msg.sender))) % 5) + 1001;
-
-        _mint(to, randomNumber, 1, "");
+        _mint(to, capsuleId, 1, "");
     }
 
     // mint a champion NFT on address
     function mintChampion(address to, uint256 capsuleId, uint256 championId) external virtual onlyRole(MINTER_ROLE) {
-        require(CAPSULE_TYPE1_ID <=  capsuleId && capsuleId <= CAPSULE_TYPE5_ID, "capsule id exceeds capsule type range");
+        require(CAPSULE_TYPE1_ID <= capsuleId && capsuleId <= CAPSULE_TYPE5_ID, "capsule id exceeds capsule type range");
         require(balanceOf(to, capsuleId) > 0, "Address must own at least one Capsule type");
         require(CHAMPIONS_MIN_ID <= championId && championId <= CHAMPIONS_MAX_ID, "Champion ID exceeds CHAMPIONS_MAX_ID");
         require(_mintedChampionAddresses[championId] == address(0), "Champion ID already minted to an address");
@@ -158,6 +162,53 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
 
         _mintedChampionAddresses[championId] = to; // Record the address that receives the NFT
         _mint(to, championId, 1, "");
+        _addChampionToOwner(to, championId);
+    }
+
+    // Champion 소각
+    function burnChampion(address from, uint256 championId) external virtual onlyRole(MINTER_ROLE) {
+        require(balanceOf(from, championId) > 0, "Address must own the Champion");
+        _burn(from, championId, 1);
+        _removeChampionFromOwner(from, championId);
+    }
+
+    // Champion ID를 민팅할 때 호출되는 함수
+    function _addChampionToOwner(address owner, uint256 championId) internal {
+        _ownedChampionIndex[championId] = _ownedChampions[owner].length;
+        _ownedChampions[owner].push(championId);
+    }
+
+    // Champion ID를 소각할 때 호출되는 함수
+    function _removeChampionFromOwner(address owner, uint256 championId) internal {
+        uint256 lastIndex = _ownedChampions[owner].length - 1;
+        uint256 championIndex = _ownedChampionIndex[championId];
+
+        if (championIndex != lastIndex) {
+            uint256 lastChampionId = _ownedChampions[owner][lastIndex];
+            _ownedChampions[owner][championIndex] = lastChampionId;
+            _ownedChampionIndex[lastChampionId] = championIndex;
+        }
+
+        _ownedChampions[owner].pop();
+        delete _ownedChampionIndex[championId];
+    }
+
+    // 소유한 Champion ID를 반환하는 함수
+    function getOwnedChampions(address owner) external view virtual returns (uint256[] memory) {
+        return _ownedChampions[owner];
+    }
+
+    // 소유한 CHEST 와 CAPSULE 의 갯수를 반환
+    function getOwnedCapsule(address owner) external view virtual returns (uint256[] memory ownedCounts) {
+
+        ownedCounts = new uint256[](6);
+        ownedCounts[0] = balanceOf(owner, CHEST_ID);
+        ownedCounts[1] = balanceOf(owner, CAPSULE_TYPE1_ID);
+        ownedCounts[2] = balanceOf(owner, CAPSULE_TYPE2_ID);
+        ownedCounts[3] = balanceOf(owner, CAPSULE_TYPE3_ID);
+        ownedCounts[4] = balanceOf(owner, CAPSULE_TYPE4_ID);
+        ownedCounts[5] = balanceOf(owner, CAPSULE_TYPE5_ID);
+
     }
 
     function supportsInterface(bytes4 interfaceId)

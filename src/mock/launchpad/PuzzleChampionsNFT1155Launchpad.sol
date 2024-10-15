@@ -41,6 +41,12 @@ contract PuzzleChampionsNFT1155Launchpad is Initializable, ERC1155Upgradeable, O
     // 기본 URI
     string private _baseURI;
 
+    // 각 주소가 소유한 Champion ID를 저장하는 매핑
+    mapping(address => uint256[]) private _ownedChampions;
+
+    // Champion ID를 소유한 주소의 인덱스를 저장하는 매핑
+    mapping(uint256 => uint256) private _ownedChampionIndex;
+
     /// @custom:oz-upgrades-unsafe-allow constructor
     //constructor() ERC1155Upgradeable() {
     //    _disableInitializers();
@@ -48,7 +54,7 @@ contract PuzzleChampionsNFT1155Launchpad is Initializable, ERC1155Upgradeable, O
     /*
         metadata sample:
         {
-            "name": "Champion Gacha Chest NFT",
+            "name": "Puzzle Champions NFT",
             "description": "This is a unique NFT with cool properties",
             "image": "https://nft.baligames.net/champions/images/1.png",
             "attributes": [
@@ -173,6 +179,53 @@ contract PuzzleChampionsNFT1155Launchpad is Initializable, ERC1155Upgradeable, O
 
         _mintedChampionAddresses[championId] = to; // Record the address that receives the NFT
         _mint(to, championId, 1, "");
+        _addChampionToOwner(to, championId);
+    }
+
+    // Champion 소각
+    function burnChampion(address from, uint256 championId) external virtual onlyRole(MINTER_ROLE) {
+        require(balanceOf(from, championId) > 0, "Address must own the Champion");
+        _burn(from, championId, 1);
+        _removeChampionFromOwner(from, championId);
+    }
+
+    // Champion ID를 민팅할 때 호출되는 함수
+    function _addChampionToOwner(address owner, uint256 championId) internal {
+        _ownedChampionIndex[championId] = _ownedChampions[owner].length;
+        _ownedChampions[owner].push(championId);
+    }
+
+    // Champion ID를 소각할 때 호출되는 함수
+    function _removeChampionFromOwner(address owner, uint256 championId) internal {
+        uint256 lastIndex = _ownedChampions[owner].length - 1;
+        uint256 championIndex = _ownedChampionIndex[championId];
+
+        if (championIndex != lastIndex) {
+            uint256 lastChampionId = _ownedChampions[owner][lastIndex];
+            _ownedChampions[owner][championIndex] = lastChampionId;
+            _ownedChampionIndex[lastChampionId] = championIndex;
+        }
+
+        _ownedChampions[owner].pop();
+        delete _ownedChampionIndex[championId];
+    }
+
+    // 소유한 Champion ID를 반환하는 함수
+    function getOwnedChampions(address owner) external view virtual returns (uint256[] memory) {
+        return _ownedChampions[owner];
+    }
+
+    // 소유한 CHEST 와 CAPSULE 의 갯수를 반환
+    function getOwnedCapsule(address owner) external view virtual returns (uint256[] memory ownedCounts) {
+
+        ownedCounts = new uint256[](6);
+        ownedCounts[0] = balanceOf(owner, CHEST_ID);
+        ownedCounts[1] = balanceOf(owner, CAPSULE_TYPE1_ID);
+        ownedCounts[2] = balanceOf(owner, CAPSULE_TYPE2_ID);
+        ownedCounts[3] = balanceOf(owner, CAPSULE_TYPE3_ID);
+        ownedCounts[4] = balanceOf(owner, CAPSULE_TYPE4_ID);
+        ownedCounts[5] = balanceOf(owner, CAPSULE_TYPE5_ID);
+
     }
 
     function supportsInterface(bytes4 interfaceId)
