@@ -7,7 +7,7 @@ const symbol = "PUZZLE_CHAMP";
 const baseURI = "https://meta.baligames.net/";
 
 describe("PUZZLE_CHAMP", function () {
-  it("Should return name PUZZLE_CHAMP", async function () {
+  it("Should return name PuzzleChampionsNFT", async function () {
     const [deployer] = await ethers.getSigners();
     const Token = new PuzzleChampionsNFT__factory(deployer);
     //const token = await Token.deploy(name, symbol, baseURI);

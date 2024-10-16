@@ -34,7 +34,7 @@ export default async function mint(params: any, hre: HardhatRuntimeEnvironment):
     // mint 함수 호출
     // const tx = await puzzleChampionsNFT.mintNFT(recipientAddress, gas_limit_option);
     // mintLaunchpad 함수 호출
-    const tx = await puzzleChampionsNFT.mintLaunchpad(recipientAddress, 20, "0x", gas_limit_option);
+    const tx = await puzzleChampionsNFT.mintLaunchpad(recipientAddress, 5, "0x", gas_limit_option);
     
     // 트랜잭션 대기
     const receipt = await tx.wait();
@@ -46,7 +46,7 @@ export default async function mint(params: any, hre: HardhatRuntimeEnvironment):
     console.log(`Successfully mintLaunchpad NFT with token ID ${tokenId} to ${recipientAddress}`);
 
     // balance 확인
-    const mint_tx = await puzzleChampionsNFT.mintCapsule(recipientAddress, 1001, gas_limit_option);
+    const mint_tx = await puzzleChampionsNFT.mintCapsule(recipientAddress, 1002, gas_limit_option);
     const mint_result = await mint_tx.wait();
     console.log(mint_result);
 

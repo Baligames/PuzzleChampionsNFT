@@ -37,6 +37,8 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
 
     // 기본 URI
     string private _baseURI;
+    string private _name;
+    string private _symbol;
 
     // 각 주소가 소유한 Champion ID를 저장하는 매핑
     mapping(address => uint256[]) private _ownedChampions;
@@ -52,6 +54,8 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         _setupRole(MINTER_ROLE, minter);
         //_chestIds.increment();
         _baseURI = "https://meta.baligames.net/";
+        _name = "PuzzleChampionsNFT";
+        _symbol = "PUZZLE_CHAMP";
 
         // set metadata uri for chest and capsules
         string memory metadataChestURI = string(abi.encodePacked(_baseURI, "chest/", CHEST_ID.toString(), ".json")); 
@@ -71,6 +75,14 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
 
         string memory metadataCapsule5URI = string(abi.encodePacked(_baseURI, "capsule/", CAPSULE_TYPE5_ID.toString(), ".json")); 
         _setMetadataURI(CAPSULE_TYPE5_ID, metadataCapsule5URI);
+    }
+
+    function name() public view returns (string memory) {
+        return _name;
+    }
+
+    function symbol() public view returns (string memory) {
+        return _symbol;
     }
 
     function setBaseURI(string memory newBaseURI) public onlyOwner {
