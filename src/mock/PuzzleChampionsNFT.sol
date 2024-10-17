@@ -29,6 +29,8 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     uint256 public constant CHAMPIONS_MIN_ID = 100001;
     uint256 public constant CHAMPIONS_MAX_ID = 195936;   // champions count
 
+    uint256 public constant CHAMPIONS_SILVER_ID_MAX = 134986; // silver 100001 ~ 134986
+
     // NFT ID에 대한 메타데이터 URI 매핑
     mapping(uint256 => string) private _metadataURIs;
 
@@ -221,6 +223,25 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         ownedCounts[4] = balanceOf(owner, CAPSULE_TYPE4_ID);
         ownedCounts[5] = balanceOf(owner, CAPSULE_TYPE5_ID);
 
+    }
+
+    // CAPSULE_TYPE1_ID trasnfer not allowed
+    function safeTransferFrom(
+        address from, address to, uint256 id, uint256 amount, bytes memory data
+    ) public virtual override {
+        require(id != CAPSULE_TYPE1_ID, "Transfer of CAPSULE_TYPE1_ID is not allowed");
+        require(id < CHAMPIONS_MIN_ID || id > CHAMPIONS_SILVER_ID_MAX, "Transfer of Silver Champion is not allowed");
+        super.safeTransferFrom(from, to, id, amount, data);
+    }
+
+    function safeBatchTransferFrom(
+        address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data
+    ) public virtual override {
+        for (uint256 i = 0; i < ids.length; ++i) {
+            require(ids[i] != CAPSULE_TYPE1_ID, "Transfer of CAPSULE_TYPE1_ID is not allowed");
+            require(ids[i] < CHAMPIONS_MIN_ID || ids[i] > CHAMPIONS_SILVER_ID_MAX, "Transfer of Silver Champion is not allowed");
+        }
+        super.safeBatchTransferFrom(from, to, ids, amounts, data);
     }
 
     function supportsInterface(bytes4 interfaceId)
