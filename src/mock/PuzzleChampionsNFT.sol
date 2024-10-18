@@ -229,6 +229,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     function safeTransferFrom(
         address from, address to, uint256 id, uint256 amount, bytes memory data
     ) public virtual override {
+        require(id != CHEST_ID, "Transfer of CHEST is not allowed");
         require(id != CAPSULE_TYPE1_ID, "Transfer of CAPSULE_TYPE1_ID is not allowed");
         require(id < CHAMPIONS_MIN_ID || id > CHAMPIONS_SILVER_ID_MAX, "Transfer of Silver Champion is not allowed");
         super.safeTransferFrom(from, to, id, amount, data);
@@ -238,6 +239,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         address from, address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data
     ) public virtual override {
         for (uint256 i = 0; i < ids.length; ++i) {
+            require(ids[i] != CHEST_ID, "Transfer of CHEST is not allowed");
             require(ids[i] != CAPSULE_TYPE1_ID, "Transfer of CAPSULE_TYPE1_ID is not allowed");
             require(ids[i] < CHAMPIONS_MIN_ID || ids[i] > CHAMPIONS_SILVER_ID_MAX, "Transfer of Silver Champion is not allowed");
         }
