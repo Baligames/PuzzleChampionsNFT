@@ -14,7 +14,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
 
     using Strings for uint256;
 
-    //bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    address private proxyAdmin;
 
     uint256 public constant CHEST_ID = 1;
 
@@ -46,7 +46,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     // Champion ID를 소유한 주소의 인덱스를 저장하는 매핑
     mapping(uint256 => uint256) private _ownedChampionIndex;
 
-    function initialize() initializer public {
+    function initialize(string memory tokenName, string memory tokenSymbol, address _proxyAdmin) initializer public {
         __ERC1155_init("");
         __Ownable_init();
         __UUPSUpgradeable_init();
@@ -54,8 +54,9 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         //_setupRole(MINTER_ROLE, minter);
         //_chestIds.increment();
         _baseURI = "https://meta.baligames.net/";
-        _name = "PuzzleChampionsNFT";
-        _symbol = "PUZZLE_CHAMP";
+        _name = tokenName;
+        _symbol = tokenSymbol;
+        proxyAdmin = _proxyAdmin;
 
         // set metadata uri for chest and capsules
         string memory metadataChestURI = string(abi.encodePacked(_baseURI, "chest/", CHEST_ID.toString(), ".json")); 
@@ -77,12 +78,10 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         _setMetadataURI(CAPSULE_TYPE5_ID, metadataCapsule5URI);
     }
 
-    function name() public view returns (string memory) {
-        return _name;
-    }
-
-    function symbol() public view returns (string memory) {
-        return _symbol;
+    // Proxy 관리자만 접근할 수 있는 modifier
+    modifier onlyProxyAdmin() {
+        require(msg.sender == proxyAdmin, "Not authorized: Only proxy admin can call this function");
+        _;
     }
 
     function setBaseURI(string memory newBaseURI) public onlyOwner {
@@ -108,14 +107,14 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     function mint(address account, uint256 id, uint256 amount, bytes memory data)
         public
         virtual
-        onlyOwner
+        onlyProxyAdmin
     {
         _mint(account, id, amount, data);
     }
 
     function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
         public
-        onlyOwner
+        onlyProxyAdmin
     {
         _mintBatch(to, ids, amounts, data);
     }
@@ -129,7 +128,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     function mintChest(address to, uint256 quantity, bytes calldata /* extraData */ )
         external
         virtual
-        onlyOwner
+        onlyProxyAdmin
         returns (uint256[] memory tokenIds, uint256[] memory amounts)
     {
 
@@ -145,7 +144,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     }
 
     // Burn one chest owned by the given address and mint one capsule.
-    function mintCapsule(address to, uint256 capsuleId ) external virtual onlyOwner
+    function mintCapsule(address to, uint256 capsuleId ) external virtual onlyProxyAdmin
     {
         require(balanceOf(to, CHEST_ID) > 0, "Address must own at least one CHEST");
         require(CAPSULE_TYPE1_ID <= capsuleId && capsuleId <= CAPSULE_TYPE5_ID, "capsule id exceeds capsule type range");
@@ -157,7 +156,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     }
 
     // mint a champion NFT on address
-    function mintChampion(address to, uint256 capsuleId, uint256 championId) external virtual onlyOwner {
+    function mintChampion(address to, uint256 capsuleId, uint256 championId) external virtual onlyProxyAdmin {
         require(CAPSULE_TYPE1_ID <= capsuleId && capsuleId <= CAPSULE_TYPE5_ID, "capsule id exceeds capsule type range");
         require(balanceOf(to, capsuleId) > 0, "Address must own at least one Capsule type");
         require(CHAMPIONS_MIN_ID <= championId && championId <= CHAMPIONS_MAX_ID, "Champion ID exceeds CHAMPIONS_MAX_ID");
@@ -177,7 +176,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     }
 
     // Champion 소각
-    function burnChampion(address from, uint256 championId) external virtual onlyOwner {
+    function burnChampion(address from, uint256 championId) external virtual onlyOwner onlyProxyAdmin {
         require(balanceOf(from, championId) > 0, "Address must own the Champion");
         _burn(from, championId, 1);
         _removeChampionFromOwner(from, championId);

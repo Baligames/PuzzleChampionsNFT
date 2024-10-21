@@ -9,9 +9,9 @@ const deploy = async ({ getNamedAccounts, deployments, network }: HardhatRuntime
   const { deployer, minter } = await getNamedAccounts();
   const logicContract = await deployments.get('PuzzleChampionsNFTLogic');
 
-  const data = ercInterface.encodeFunctionData('initialize',[deployer,minter]);
+  const data = ercInterface.encodeFunctionData('initialize',["PuzzleChampionsNFT","PUZZLE_CHAMP",minter]);
 
-  await deploy('PuzzleChampionsNFT', {  // PuzzleChampionsNFT Proxy
+  await deploy('PuzzleChampionsNFTProxy', {  // PuzzleChampionsNFT Proxy
     contract: TransparentUpgradeableProxy,
     from: deployer,
     log: true,

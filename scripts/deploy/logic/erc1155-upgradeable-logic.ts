@@ -1,3 +1,4 @@
+/*
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
 const deploy = async ({ getNamedAccounts, deployments, ethers }: HardhatRuntimeEnvironment) => {
@@ -10,7 +11,8 @@ const deploy = async ({ getNamedAccounts, deployments, ethers }: HardhatRuntimeE
   });
 };
 
-deploy.tags = ['PuzzleChampionsNFT'];
+deploy.tags = ['PuzzleChampionsNFTUpgrade'];
 deploy.dependencies = ['VerifyContracts'];
 
 export default deploy;
+*/

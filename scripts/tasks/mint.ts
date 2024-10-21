@@ -1,5 +1,5 @@
 import { HardhatRuntimeEnvironment } from 'hardhat/types/runtime';
-import { PuzzleChampionsNFT__factory } from "../typechain-types";
+import { PuzzleChampionsNFT, PuzzleChampionsNFT__factory } from "../typechain-types";
 const { LOGIC_ADDRESS, PROXY_ADDRESS, UPGRADE_LOGIC } = process.env;
 
 export default async function mint(params: any, hre: HardhatRuntimeEnvironment): Promise<void> {
@@ -9,13 +9,15 @@ export default async function mint(params: any, hre: HardhatRuntimeEnvironment):
   const proxyAddress = PROXY_ADDRESS;
 
   // NFT를 받을 주소 설정
-  const recipientAddress = "0x67da6779670edbbf2ec8657eeb9ddaf8b84fddda";
+  //const recipientAddress = "0x67da6779670edbbf2ec8657eeb9ddaf8b84fddda";
+  const recipientAddress = "0xcf75a0f77da7c15c38f85e3efc072dddf41dceff";
 
   const [deplyer,minter] = await ethers.getSigners();
 
   console.log("Using account:", minter.address);
+  console.log("Proxy Address :", proxyAddress);
 
-  const manualGasLimit = ethers.BigNumber.from("1000000");
+  const manualGasLimit = ethers.BigNumber.from("10000000");
 
   //console.log(`Balance for 1st account ${await minter.getAddress()}: ${await minter.getBalance()}`);
 
@@ -25,8 +27,8 @@ export default async function mint(params: any, hre: HardhatRuntimeEnvironment):
 
     // 가스 추정
     console.log("Estimating gas...");
-    const estimatedGas = await puzzleChampionsNFT.estimateGas.mintLaunchpad(recipientAddress, 1, "0x");
-    console.log("Estimated gas:", estimatedGas.toString())
+    //const estimatedGas = await puzzleChampionsNFT.estimateGas.mint(recipientAddress, 1, 1,"0x");
+    //console.log("Estimated gas:", estimatedGas.toString())
     const gas_limit_option = {gasLimit: manualGasLimit}
 
     console.log("Minting NFT...");
@@ -34,7 +36,7 @@ export default async function mint(params: any, hre: HardhatRuntimeEnvironment):
     // mint 함수 호출
     // const tx = await puzzleChampionsNFT.mintNFT(recipientAddress, gas_limit_option);
     // mintLaunchpad 함수 호출
-    const tx = await puzzleChampionsNFT.mintLaunchpad(recipientAddress, 5, "0x", gas_limit_option);
+    const tx = await puzzleChampionsNFT.mintChest(recipientAddress, 1, "0x", gas_limit_option);
     
     // 트랜잭션 대기
     const receipt = await tx.wait();
