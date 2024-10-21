@@ -8,18 +8,16 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-import { NFTLaunchpadCommon } from "../launchpad/NFTLaunchpadCommon.sol";
-import { AccessControl, Context } from "@openzeppelin/contracts/access/AccessControl.sol";
-
-
-contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable, AccessControl, NFTLaunchpadCommon {
+//import { NFTLaunchpadCommon } from "../launchpad/NFTLaunchpadCommon.sol";
+//import { AccessControl, Context } from "@openzeppelin/contracts/access/AccessControl.sol";
+contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgradeable, UUPSUpgradeable {
 
     using Strings for uint256;
 
-    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
+    //bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     uint256 public constant CHEST_ID = 1;
-    
+
     uint256 public constant CAPSULE_TYPE1_ID = 1001;
     uint256 public constant CAPSULE_TYPE2_ID = 1002;
     uint256 public constant CAPSULE_TYPE3_ID = 1003;
@@ -48,12 +46,12 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     // Champion ID를 소유한 주소의 인덱스를 저장하는 매핑
     mapping(uint256 => uint256) private _ownedChampionIndex;
 
-    function initialize(address admin, address minter) initializer public {
+    function initialize() initializer public {
         __ERC1155_init("");
         __Ownable_init();
         __UUPSUpgradeable_init();
-        _setupRole(DEFAULT_ADMIN_ROLE, admin);
-        _setupRole(MINTER_ROLE, minter);
+        //_setupRole(DEFAULT_ADMIN_ROLE, admin);
+        //_setupRole(MINTER_ROLE, minter);
         //_chestIds.increment();
         _baseURI = "https://meta.baligames.net/";
         _name = "PuzzleChampionsNFT";
@@ -110,14 +108,14 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     function mint(address account, uint256 id, uint256 amount, bytes memory data)
         public
         virtual
-        onlyRole(MINTER_ROLE)
+        onlyOwner
     {
         _mint(account, id, amount, data);
     }
 
     function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
         public
-        onlyRole(MINTER_ROLE)
+        onlyOwner
     {
         _mintBatch(to, ids, amounts, data);
     }
@@ -128,11 +126,10 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         override
     {}
 
-    /// @dev Mint NFTs for the launchpad.
-    function mintLaunchpad(address to, uint256 quantity, bytes calldata /* extraData */ )
+    function mintChest(address to, uint256 quantity, bytes calldata /* extraData */ )
         external
         virtual
-        onlyRole(MINTER_ROLE)
+        onlyOwner
         returns (uint256[] memory tokenIds, uint256[] memory amounts)
     {
 
@@ -148,7 +145,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     }
 
     // Burn one chest owned by the given address and mint one capsule.
-    function mintCapsule(address to, uint256 capsuleId ) external virtual onlyRole(MINTER_ROLE)
+    function mintCapsule(address to, uint256 capsuleId ) external virtual onlyOwner
     {
         require(balanceOf(to, CHEST_ID) > 0, "Address must own at least one CHEST");
         require(CAPSULE_TYPE1_ID <= capsuleId && capsuleId <= CAPSULE_TYPE5_ID, "capsule id exceeds capsule type range");
@@ -160,7 +157,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     }
 
     // mint a champion NFT on address
-    function mintChampion(address to, uint256 capsuleId, uint256 championId) external virtual onlyRole(MINTER_ROLE) {
+    function mintChampion(address to, uint256 capsuleId, uint256 championId) external virtual onlyOwner {
         require(CAPSULE_TYPE1_ID <= capsuleId && capsuleId <= CAPSULE_TYPE5_ID, "capsule id exceeds capsule type range");
         require(balanceOf(to, capsuleId) > 0, "Address must own at least one Capsule type");
         require(CHAMPIONS_MIN_ID <= championId && championId <= CHAMPIONS_MAX_ID, "Champion ID exceeds CHAMPIONS_MAX_ID");
@@ -180,7 +177,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     }
 
     // Champion 소각
-    function burnChampion(address from, uint256 championId) external virtual onlyRole(MINTER_ROLE) {
+    function burnChampion(address from, uint256 championId) external virtual onlyOwner {
         require(balanceOf(from, championId) > 0, "Address must own the Champion");
         _burn(from, championId, 1);
         _removeChampionFromOwner(from, championId);
@@ -250,17 +247,16 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         public
         view
         virtual
-        override(ERC1155Upgradeable, AccessControl, NFTLaunchpadCommon)
+        override(ERC1155Upgradeable)
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
     }
-
-    function _msgSender() internal view virtual override(Context, ContextUpgradeable) returns (address) {
+    function _msgSender() internal view virtual override(ContextUpgradeable) returns (address) {
         return msg.sender;
     }
 
-    function _msgData() internal view virtual override(Context, ContextUpgradeable) returns (bytes calldata) {
+    function _msgData() internal view virtual override(ContextUpgradeable) returns (bytes calldata) {
         return msg.data;
     }
 }
