@@ -176,7 +176,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     }
 
     // Champion 소각
-    function burnChampion(address from, uint256 championId) external virtual onlyOwner onlyProxyAdmin {
+    function burnChampion(address from, uint256 championId) external virtual onlyProxyAdmin {
         require(balanceOf(from, championId) > 0, "Address must own the Champion");
         _burn(from, championId, 1);
         _removeChampionFromOwner(from, championId);
@@ -228,6 +228,11 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         require(id != CHEST_ID, "Transfer of CHEST is not allowed");
         require(id != CAPSULE_TYPE1_ID, "Transfer of CAPSULE_TYPE1_ID is not allowed");
         require(id < CHAMPIONS_MIN_ID || id > CHAMPIONS_SILVER_ID_MAX, "Transfer of Silver Champion is not allowed");
+
+        // 소유권 변경
+        _removeChampionFromOwner(from, id);
+        _addChampionToOwner(to, id);
+
         super.safeTransferFrom(from, to, id, amount, data);
     }
 
@@ -238,6 +243,11 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
             require(ids[i] != CHEST_ID, "Transfer of CHEST is not allowed");
             require(ids[i] != CAPSULE_TYPE1_ID, "Transfer of CAPSULE_TYPE1_ID is not allowed");
             require(ids[i] < CHAMPIONS_MIN_ID || ids[i] > CHAMPIONS_SILVER_ID_MAX, "Transfer of Silver Champion is not allowed");
+
+            // 소유권 변경
+            _removeChampionFromOwner(from, ids[i]);
+            _addChampionToOwner(to, ids[i]);
+
         }
         super.safeBatchTransferFrom(from, to, ids, amounts, data);
     }
