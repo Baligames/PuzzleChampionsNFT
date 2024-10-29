@@ -146,11 +146,11 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     // Burn one chest owned by the given address and mint one capsule.
     function mintCapsule(address to, uint256 capsuleId ) external virtual onlyProxyAdmin
     {
-        require(balanceOf(to, CHEST_ID) > 0, "Address must own at least one CHEST");
+        //require(balanceOf(to, CHEST_ID) > 0, "Address must own at least one CHEST"); // no more need to check chest
         require(CAPSULE_TYPE1_ID <= capsuleId && capsuleId <= CAPSULE_TYPE5_ID, "capsule id exceeds capsule type range");
 
         // Burn one CHEST_ID from the address
-        _burn(to, CHEST_ID, 1);
+        //_burn(to, CHEST_ID, 1);
 
         _mint(to, capsuleId, 1, "");
     }
@@ -171,8 +171,8 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         _setMetadataURI(championId, metadataURI);
 
         _mintedChampionAddresses[championId] = to; // Record the address that receives the NFT
-        _mint(to, championId, 1, "");
         _addChampionToOwner(to, championId);
+        _mint(to, championId, 1, "");
     }
 
     // Champion 소각
@@ -190,6 +190,8 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
 
     // Champion ID를 소각할 때 호출되는 함수
     function _removeChampionFromOwner(address owner, uint256 championId) internal {
+        require(_ownedChampions[owner][_ownedChampionIndex[championId]] == championId, "Champion not owned by address");
+
         uint256 lastIndex = _ownedChampions[owner].length - 1;
         uint256 championIndex = _ownedChampionIndex[championId];
 
