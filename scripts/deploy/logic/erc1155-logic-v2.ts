@@ -7,6 +7,7 @@ const deploy = async ({ getNamedAccounts, deployments, ethers }: HardhatRuntimeE
     contract: 'PuzzleChampionsNFT',
     from: deployer,
     log: true,
+    gasPrice: ethers.utils.parseUnits('100', 'gwei'),
   });
 };
 

@@ -4,7 +4,7 @@ import TransparentUpgradeableProxy from 'hardhat-deploy/extendedArtifacts/Transp
 
 const ercInterface = PuzzleChampionsNFT__factory.createInterface();
 
-const deploy = async ({ getNamedAccounts, deployments, network }: HardhatRuntimeEnvironment) => {
+const deploy = async ({ getNamedAccounts, deployments, network, ethers }: HardhatRuntimeEnvironment) => {
   const { deploy } = deployments;
   const { deployer, minter } = await getNamedAccounts();
   const logicContract = await deployments.get('PuzzleChampionsNFTLogic');
@@ -16,6 +16,7 @@ const deploy = async ({ getNamedAccounts, deployments, network }: HardhatRuntime
     from: deployer,
     log: true,
     args: [logicContract.address, deployer ,data],
+    gasPrice: ethers.utils.parseUnits('100', 'gwei')
   });
 };
 
