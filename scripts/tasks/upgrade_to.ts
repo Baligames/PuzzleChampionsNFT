@@ -11,13 +11,14 @@ export default async function upgrade_to(params: any, hre: HardhatRuntimeEnviron
 
   //console.log(`Balance for 1st account ${await minter.getAddress()}: ${await minter.getBalance()}`);
 
-  const puzzleChampionsNFT = PuzzleChampionsNFT__factory.connect(proxyAddress, deplyer) as PuzzleChampionsNFT;
+  const puzzleChampionsNFT = PuzzleChampionsNFT__factory.connect(proxyAddress as string, deplyer);
 
-  const tx = await puzzleChampionsNFT.upgradeTo(UPGRADE_LOGIC);
+  const tx = await puzzleChampionsNFT.upgradeTo(UPGRADE_LOGIC as string);
 
   // 트랜잭션 대기
   const receipt = await tx.wait();      
   
+  console.log(receipt);
   console.log(`Successfully Upgrade Logic to ${UPGRADE_LOGIC}`);
 
 }

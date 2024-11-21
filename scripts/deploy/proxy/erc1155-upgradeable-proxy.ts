@@ -16,7 +16,7 @@ const deploy = async ({ getNamedAccounts, deployments, network, ethers }: Hardha
     from: deployer,
     log: true,
     args: [logicContract.address, deployer ,data],
-    gasPrice: ethers.utils.parseUnits('100', 'gwei')
+    gasPrice: ethers.utils.parseUnits('20', 'gwei')
   });
 };
 

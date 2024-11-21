@@ -42,6 +42,18 @@ git submodule update --init --recursive
     npx hardhat deploy --tags PuzzleChampionsNFT --network ronin-mainnet
     ```
 
+- Saigon testnet upgrade logic deploy
+
+    ```bash
+    npx hardhat deploy --tags PuzzleChampionsNFTUpgrade --network ronin-testnet
+    ```
+
+- Ronin mainnet upgrade logic deploy
+
+    ```bash
+    npx hardhat deploy --tags PuzzleChampionsNFTUpgrade --network ronin-mainnet
+    ```
+
 ## Features
 
 - Write / run tests with either Hardhat or Foundry:
