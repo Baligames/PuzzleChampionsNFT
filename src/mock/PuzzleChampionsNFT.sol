@@ -47,6 +47,9 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     // Champion ID를 소유한 주소의 인덱스를 저장하는 매핑
     mapping(uint256 => uint256) private _ownedChampionIndex;
 
+    // fusion 으로 만들어진 nft 의 주소를 저장하는 매핑
+    mapping(uint256 => address) private _fusionedChampions;
+
     function initialize(string memory tokenName, string memory tokenSymbol, address _proxyAdmin) initializer public {
         __ERC1155_init("");
         __Ownable_init();
@@ -247,7 +250,9 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         require(balanceOf(to, championIds[1]) > 0, "Address must own Champion for burning");
         // targetChampionId 은 아무도 소유하지 않은 챔피언이어야 함.
         require(_mintedChampionAddresses[targetChampionId] == address(0), "Target Champion ID already minted to an address");
-        /*  1성 → 2성 : 퓨전코어 2 EA 소모
+        require(_fusionedChampions[targetChampionId] == address(0), "Target Champion ID already fusioned");
+
+        /*  1성 → 2성 : 퓨전코어 2 EA 소모 - 퓨전 불가
             2성 → 3성 : 퓨전코어 5 EA 소모
             3성 → 4성 : 퓨전코어 10 EA 소모
             4성 → 5성 : 퓨전코어 20 EA 소모
@@ -264,6 +269,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         string memory metadataURI = string(abi.encodePacked(_baseURI, "champions/", targetChampionId.toString(), ".json")); 
         _setMetadataURI(targetChampionId, metadataURI);
 
+        _fusionedChampions[targetChampionId] = to;
         _mintedChampionAddresses[targetChampionId] = to; // Record the address that receives the NFT
         _addChampionToOwner(to, targetChampionId);
         _mint(to, targetChampionId, 1, data);
@@ -317,4 +323,14 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     function _msgData() internal view virtual override(ContextUpgradeable) returns (bytes calldata) {
         return msg.data;
     }
+
+    function removeFusionedChampion(uint256 championId) external virtual onlyProxyAdmin {
+        _fusionedChampions[championId] = address(0);
+    }
+
+    function setFusionCoreMetadata() external virtual onlyProxyAdmin {
+        string memory metadataFusionCoreURI = string(abi.encodePacked(_baseURI, "fusioncore/", FUSION_CORE_ID.toString(), ".json")); 
+        _setMetadataURI(FUSION_CORE_ID, metadataFusionCoreURI);
+    }
+
 }
