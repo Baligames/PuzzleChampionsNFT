@@ -232,8 +232,10 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         require(id < CHAMPIONS_MIN_ID || id > CHAMPIONS_SILVER_ID_MAX, "Transfer of Silver Champion is not allowed");
 
         // 소유권 변경
-        _removeChampionFromOwner(from, id);
-        _addChampionToOwner(to, id);
+        if (id >= CHAMPIONS_MIN_ID) {
+            _removeChampionFromOwner(from, id);
+            _addChampionToOwner(to, id);
+        }
 
         super.safeTransferFrom(from, to, id, amount, data);
     }
@@ -247,9 +249,10 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
             require(ids[i] < CHAMPIONS_MIN_ID || ids[i] > CHAMPIONS_SILVER_ID_MAX, "Transfer of Silver Champion is not allowed");
 
             // 소유권 변경
-            _removeChampionFromOwner(from, ids[i]);
-            _addChampionToOwner(to, ids[i]);
-
+            if (ids[i] >= CHAMPIONS_MIN_ID) {
+                _removeChampionFromOwner(from, ids[i]);
+                _addChampionToOwner(to, ids[i]);
+            }
         }
         super.safeBatchTransferFrom(from, to, ids, amounts, data);
     }
