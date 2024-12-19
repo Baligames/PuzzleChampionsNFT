@@ -26,7 +26,9 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     uint256 public constant CAPSULE_TYPE5_ID = 1005;
 
     uint256 public constant CHAMPIONS_MIN_ID = 100001;
-    uint256 public constant CHAMPIONS_MAX_ID = 195936;   // champions count
+    uint256 public constant CHAMPIONS_MAX_ID = 999999;
+    // champions count, 액쳄 머신 민팅으로 195936 -> 999999 로 확장 (2024.12.12)
+    // AXC(액챔) 에서 머신 소각해서 민팅하는 머신들(5,6성)은 200000 ~ 299999 번 범위로 민팅, 약 21000개 정도 일정에 따라 소폭 증가
 
     uint256 public constant CHAMPIONS_SILVER_ID_MAX = 134986; // silver 100001 ~ 134986
 
@@ -174,6 +176,29 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         _mint(to, capsuleId, quantity, data);
     }
 
+    // mint a champion NFT on address without burning capsule
+    function mintChampionBatch(address to, uint256[] memory championIds, bytes memory data) external virtual onlyProxyAdmin {
+        for (uint256 i = 0; i < championIds.length; ++i) {
+            require(CHAMPIONS_MIN_ID <= championIds[i] && championIds[i] <= CHAMPIONS_MAX_ID, "Champion ID exceeds CHAMPIONS_MAX_ID");
+            require(_mintedChampionAddresses[championIds[i]] == address(0), "Champion ID already minted to an address");
+        }
+
+        uint256[] memory amounts = new uint256[](championIds.length);
+
+        for (uint256 i = 0; i < championIds.length; ++i) {
+            uint256 championId = championIds[i];
+            string memory metadataURI = string(abi.encodePacked(_baseURI, "champions/", championId.toString(), ".json")); 
+            _setMetadataURI(championId, metadataURI);
+
+            _mintedChampionAddresses[championId] = to; // Record the address that receives the NFT
+            _addChampionToOwner(to, championId);
+            amounts[i] = 1;
+        }
+
+        _mintBatch(to, championIds, amounts, data);
+
+    }
+
     // mint a champion NFT on address
     function mintChampion(address to, uint256 capsuleId, uint256 championId, bytes memory data) external virtual onlyProxyAdmin {
         require(CAPSULE_TYPE1_ID <= capsuleId && capsuleId <= CAPSULE_TYPE5_ID, "capsule id exceeds capsule type range");
@@ -183,8 +208,6 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
 
         // Burn one capsule from the address
         _burn(to, capsuleId, 1);
-
-        // TODO capsuleId 별로 다른 확률로 championId 를 가져야함
 
         string memory metadataURI = string(abi.encodePacked(_baseURI, "champions/", championId.toString(), ".json")); 
         _setMetadataURI(championId, metadataURI);
@@ -284,9 +307,11 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         require(id < CHAMPIONS_MIN_ID || id > CHAMPIONS_SILVER_ID_MAX, "Transfer of Silver Champion is not allowed");
 
         // 소유권 변경
-        _removeChampionFromOwner(from, id);
-        _addChampionToOwner(to, id);
-        _mintedChampionAddresses[id] = to;
+        if (id >= CHAMPIONS_MIN_ID) {
+            _removeChampionFromOwner(from, id);
+            _addChampionToOwner(to, id);
+            _mintedChampionAddresses[id] = to;
+        }
 
         super.safeTransferFrom(from, to, id, amount, data);
     }
@@ -298,11 +323,15 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
             require(ids[i] != CHEST_ID, "Transfer of CHEST is not allowed");
             require(ids[i] != CAPSULE_TYPE1_ID, "Transfer of CAPSULE_TYPE1_ID is not allowed");
             require(ids[i] < CHAMPIONS_MIN_ID || ids[i] > CHAMPIONS_SILVER_ID_MAX, "Transfer of Silver Champion is not allowed");
+        }
 
+        for (uint256 i = 0; i < ids.length; ++i) {
             // 소유권 변경
-            _removeChampionFromOwner(from, ids[i]);
-            _addChampionToOwner(to, ids[i]);
-            _mintedChampionAddresses[ids[i]] = to;
+            if (ids[i] >= CHAMPIONS_MIN_ID) {
+                _removeChampionFromOwner(from, ids[i]);
+                _addChampionToOwner(to, ids[i]);
+                _mintedChampionAddresses[ids[i]] = to;
+            }
         }
         super.safeBatchTransferFrom(from, to, ids, amounts, data);
     }
@@ -316,6 +345,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     {
         return super.supportsInterface(interfaceId);
     }
+
     function _msgSender() internal view virtual override(ContextUpgradeable) returns (address) {
         return msg.sender;
     }
