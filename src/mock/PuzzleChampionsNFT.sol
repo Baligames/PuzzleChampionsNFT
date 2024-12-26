@@ -17,6 +17,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     address private proxyAdmin;
 
     uint256 public constant CHEST_ID = 1;
+    uint256 public constant FUSION_CORE_ID = 2;
 
     uint256 public constant CAPSULE_TYPE1_ID = 1001;
     uint256 public constant CAPSULE_TYPE2_ID = 1002;
@@ -25,10 +26,10 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     uint256 public constant CAPSULE_TYPE5_ID = 1005;
 
     uint256 public constant CHAMPIONS_MIN_ID = 100001;
-    uint256 public constant CHAMPIONS_MAX_ID = 999999;
-    // champions count, 액쳄 머신 민팅으로 195936 -> 999999 로 확장 (2024.12.12)
+    uint256 public constant CHAMPIONS_MAX_ID = 999_999_999;
+    // champions count, 액쳄 머신 민팅으로 195936 -> 999_999_999 로 확장 (2024.12.26)
     // AXC(액챔) 에서 머신 소각해서 민팅하는 머신들(5,6성)은 200000 ~ 299999 번 범위로 민팅, 약 21000개 정도 일정에 따라 소폭 증가
-
+    uint256 public constant CHAMPIONS_FUSION_ID_MIN = 1_000_001; // fusion mint 된 챔피언 1_000_001 ~ 부터 시작
     uint256 public constant CHAMPIONS_SILVER_ID_MAX = 134986; // silver 100001 ~ 134986
 
     // NFT ID에 대한 메타데이터 URI 매핑
@@ -41,6 +42,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     string private _baseURI;
     string private _name;
     string private _symbol;
+    uint8 private _dev = 0; // 0: prod, 1: dev
 
     // 각 주소가 소유한 Champion ID를 저장하는 매핑
     mapping(address => uint256[]) private _ownedChampions;
@@ -64,6 +66,9 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         string memory metadataChestURI = string(abi.encodePacked(_baseURI, "chest/", CHEST_ID.toString(), ".json")); 
         _setMetadataURI(CHEST_ID, metadataChestURI);
 
+        string memory metadataFusionCoreURI = string(abi.encodePacked(_baseURI, "fusioncore/", FUSION_CORE_ID.toString(), ".json")); 
+        _setMetadataURI(FUSION_CORE_ID, metadataFusionCoreURI);
+
         string memory metadataCapsule1URI = string(abi.encodePacked(_baseURI, "capsule/", CAPSULE_TYPE1_ID.toString(), ".json")); 
         _setMetadataURI(CAPSULE_TYPE1_ID, metadataCapsule1URI);
 
@@ -86,6 +91,14 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         _;
     }
 
+    function name() public view returns (string memory) {
+        return _name;
+    }
+
+    function symbol() public view returns (string memory) {
+        return _symbol;
+    }
+
     function setBaseURI(string memory newBaseURI) public onlyOwner {
         _baseURI = newBaseURI;
     }
@@ -96,10 +109,26 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
 
     function uri(uint256 tokenId) public view virtual override returns (string memory) {
         string memory metadataURI = _metadataURIs[tokenId];
-        
+        string memory token_type;
+        string memory envQuery = "";
+
+        if (tokenId == CHEST_ID) {
+            token_type = "chest";
+        } else if (tokenId == FUSION_CORE_ID) {
+            token_type = "fusioncore";
+        } else if (tokenId >= CAPSULE_TYPE1_ID && tokenId <= CAPSULE_TYPE5_ID) {
+            token_type = "capsule";
+        } else {
+            token_type = "champions";
+        }
+
+        if (_dev == 1) {
+            envQuery = string(abi.encodePacked("?env=dev"));
+        }
+
         return bytes(metadataURI).length > 0
-            ? metadataURI
-            : string(abi.encodePacked(_baseURI, "champions/", tokenId.toString(), ".json"));
+            ? string(abi.encodePacked(metadataURI, envQuery))
+            : string(abi.encodePacked(_baseURI, token_type, "/", tokenId.toString(), ".json", envQuery));
     }
 
     function setURI(string memory newuri) public onlyOwner {
@@ -145,8 +174,13 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
 
     }
 
+    function mintFusionCore(address to, uint256 quantity, bytes memory data) external virtual onlyProxyAdmin
+    {
+        _mint(to, FUSION_CORE_ID, quantity, data);
+    }
+
     // Burn one chest owned by the given address and mint one capsule.
-    function mintCapsule(address to, uint256 capsuleId ) external virtual onlyProxyAdmin
+    function mintCapsule(address to, uint256 capsuleId, uint256 quantity, bytes memory data) external virtual onlyProxyAdmin
     {
         //require(balanceOf(to, CHEST_ID) > 0, "Address must own at least one CHEST"); // no more need to check chest
         require(CAPSULE_TYPE1_ID <= capsuleId && capsuleId <= CAPSULE_TYPE5_ID, "capsule id exceeds capsule type range");
@@ -154,7 +188,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         // Burn one CHEST_ID from the address
         //_burn(to, CHEST_ID, 1);
 
-        _mint(to, capsuleId, 1, "");
+        _mint(to, capsuleId, quantity, data);
     }
 
     // mint a champion NFT on address without burning capsule
@@ -226,6 +260,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
 
         _ownedChampions[owner].pop();
         delete _ownedChampionIndex[championId];
+        _mintedChampionAddresses[championId] = address(0);
     }
 
     // 소유한 Champion ID를 반환하는 함수
@@ -237,13 +272,44 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     function getOwnedCapsule(address owner) external view virtual returns (uint256[] memory ownedCounts) {
 
         ownedCounts = new uint256[](6);
-        ownedCounts[0] = balanceOf(owner, CHEST_ID);
+        ownedCounts[0] = balanceOf(owner, FUSION_CORE_ID);
         ownedCounts[1] = balanceOf(owner, CAPSULE_TYPE1_ID);
         ownedCounts[2] = balanceOf(owner, CAPSULE_TYPE2_ID);
         ownedCounts[3] = balanceOf(owner, CAPSULE_TYPE3_ID);
         ownedCounts[4] = balanceOf(owner, CAPSULE_TYPE4_ID);
         ownedCounts[5] = balanceOf(owner, CAPSULE_TYPE5_ID);
 
+    }
+
+    // Fusion core 1개와 기존 champion 2개를 소모하고 새로운 champion 1개를 발급
+    function fusionChampion(address to, uint256 fusionCoreCount, uint256[] memory championIds, uint256 targetChampionId, bytes memory data) external virtual onlyProxyAdmin {
+        require(balanceOf(to, FUSION_CORE_ID) >= fusionCoreCount, "Address must own at least one Fusion Core");
+        require(balanceOf(to, championIds[0]) > 0, "Address must own Champion (index 0) for burning");
+        require(balanceOf(to, championIds[1]) > 0, "Address must own Champion (index 1) for burning");
+        // targetChampionId 은 아무도 소유하지 않은 챔피언이어야 함.
+        require(targetChampionId >= CHAMPIONS_FUSION_ID_MIN, "Target Champion ID must be greater than CHAMPIONS_FUSION_ID_MIN");
+        require(_mintedChampionAddresses[targetChampionId] == address(0), "Target Champion ID already minted to an address");
+
+        /*  1성 → 2성 : 퓨전코어 2 EA 소모 - 퓨전 불가
+            2성 → 3성 : 퓨전코어 5 EA 소모
+            3성 → 4성 : 퓨전코어 10 EA 소모
+            4성 → 5성 : 퓨전코어 20 EA 소모
+            5성 → 6성 : 퓨전코어 40 EA 소모 */
+
+        // burn 3 items
+        _burn(to, FUSION_CORE_ID, fusionCoreCount);
+        _removeChampionFromOwner(to, championIds[0]);
+        _burn(to, championIds[0], 1);
+        _removeChampionFromOwner(to, championIds[1]);
+        _burn(to, championIds[1], 1);
+
+        // mint target champion
+        string memory metadataURI = string(abi.encodePacked(_baseURI, "champions/", targetChampionId.toString(), ".json")); 
+        _setMetadataURI(targetChampionId, metadataURI);
+
+        _mintedChampionAddresses[targetChampionId] = to; // Record the address that receives the NFT
+        _addChampionToOwner(to, targetChampionId);
+        _mint(to, targetChampionId, 1, data);
     }
 
     // CAPSULE_TYPE1_ID trasnfer not allowed
@@ -258,6 +324,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
         if (id >= CHAMPIONS_MIN_ID) {
             _removeChampionFromOwner(from, id);
             _addChampionToOwner(to, id);
+            _mintedChampionAddresses[id] = to;
         }
 
         super.safeTransferFrom(from, to, id, amount, data);
@@ -277,6 +344,7 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
             if (ids[i] >= CHAMPIONS_MIN_ID) {
                 _removeChampionFromOwner(from, ids[i]);
                 _addChampionToOwner(to, ids[i]);
+                _mintedChampionAddresses[ids[i]] = to;
             }
         }
         super.safeBatchTransferFrom(from, to, ids, amounts, data);
@@ -299,4 +367,14 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     function _msgData() internal view virtual override(ContextUpgradeable) returns (bytes calldata) {
         return msg.data;
     }
+
+    function setFusionCoreMetadata() external virtual onlyProxyAdmin {
+        string memory metadataFusionCoreURI = string(abi.encodePacked(_baseURI, "fusioncore/", FUSION_CORE_ID.toString(), ".json"));
+        _setMetadataURI(FUSION_CORE_ID, metadataFusionCoreURI);
+    }
+
+    function setDev(uint8 dev) external virtual onlyProxyAdmin {
+        _dev = dev;
+    }
+
 }
