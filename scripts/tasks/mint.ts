@@ -21,7 +21,7 @@ export default async function mint(params: any, hre: HardhatRuntimeEnvironment):
 
   //console.log(`Balance for 1st account ${await minter.getAddress()}: ${await minter.getBalance()}`);
 
-  const puzzleChampionsNFT = PuzzleChampionsNFT__factory.connect(proxyAddress, minter) as PuzzleChampionsNFT;
+  const puzzleChampionsNFT = PuzzleChampionsNFT__factory.connect(proxyAddress as string, minter);
 
   //try {
 
@@ -48,7 +48,7 @@ export default async function mint(params: any, hre: HardhatRuntimeEnvironment):
     console.log(`Successfully mintLaunchpad NFT with token ID ${tokenId} to ${recipientAddress}`);
 
     // balance 확인
-    const mint_tx = await puzzleChampionsNFT.mintCapsule(recipientAddress, 1002, gas_limit_option);
+    const mint_tx = await puzzleChampionsNFT.mintCapsule(recipientAddress, 1002, 1, "0x", gas_limit_option);
     const mint_result = await mint_tx.wait();
     console.log(mint_result);
 

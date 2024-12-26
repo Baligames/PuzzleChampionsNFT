@@ -1,4 +1,3 @@
-/*
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
 
 const deploy = async ({ getNamedAccounts, deployments, ethers }: HardhatRuntimeEnvironment) => {
@@ -15,4 +14,3 @@ deploy.tags = ['PuzzleChampionsNFTUpgrade'];
 deploy.dependencies = ['VerifyContracts'];
 
 export default deploy;
-*/
