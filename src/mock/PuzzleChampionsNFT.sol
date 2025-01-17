@@ -235,8 +235,8 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
     // Champion 소각
     function burnChampion(address from, uint256 championId) external virtual onlyProxyAdmin {
         require(balanceOf(from, championId) > 0, "Address must own the Champion");
-        _burn(from, championId, 1);
         _removeChampionFromOwner(from, championId);
+        _burn(from, championId, 1);
     }
 
     // Champion ID를 민팅할 때 호출되는 함수
