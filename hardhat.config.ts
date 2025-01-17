@@ -14,7 +14,7 @@ import set_dev from './scripts/tasks/set_dev';
 const typechainDir = path.join(__dirname, './scripts/typechain-types');
 if (fs.existsSync(typechainDir)) {
   //task('task_champions', 'Champions check balance task').setAction(champions);
-  //task('task_mint', 'mint test task').setAction(mint);
+  task('task_mint', 'mint test task').setAction(mint);
   task('task_upgrade_to', 'upgrade proxy address task').setAction(upgrade_to);
   task('task_set_dev', 'set dev task').setAction(set_dev);
 }

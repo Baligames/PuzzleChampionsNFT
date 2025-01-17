@@ -247,15 +247,18 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
 
     // Champion ID를 소각할 때 호출되는 함수
     function _removeChampionFromOwner(address owner, uint256 championId) internal {
-        require(_ownedChampions[owner][_ownedChampionIndex[championId]] == championId, "Champion not owned by address");
+        //require(_ownedChampions[owner][_ownedChampionIndex[championId]] == championId, "Champion not owned by address");
+        require(balanceOf(owner, championId) > 0, "Champion not owned by address");
 
-        uint256 lastIndex = _ownedChampions[owner].length - 1;
-        uint256 championIndex = _ownedChampionIndex[championId];
+        if ( _ownedChampions[owner].length > 0) {
+            uint256 lastIndex = _ownedChampions[owner].length - 1;
+            uint256 championIndex = _ownedChampionIndex[championId];
 
-        if (championIndex != lastIndex) {
-            uint256 lastChampionId = _ownedChampions[owner][lastIndex];
-            _ownedChampions[owner][championIndex] = lastChampionId;
-            _ownedChampionIndex[lastChampionId] = championIndex;
+            if (championIndex != lastIndex) {
+                uint256 lastChampionId = _ownedChampions[owner][lastIndex];
+                _ownedChampions[owner][championIndex] = lastChampionId;
+                _ownedChampionIndex[lastChampionId] = championIndex;
+            }
         }
 
         _ownedChampions[owner].pop();
