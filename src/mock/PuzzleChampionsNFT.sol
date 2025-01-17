@@ -259,9 +259,9 @@ contract PuzzleChampionsNFT is Initializable, ERC1155Upgradeable, OwnableUpgrade
                 _ownedChampions[owner][championIndex] = lastChampionId;
                 _ownedChampionIndex[lastChampionId] = championIndex;
             }
+            _ownedChampions[owner].pop();
         }
 
-        _ownedChampions[owner].pop();
         delete _ownedChampionIndex[championId];
         _mintedChampionAddresses[championId] = address(0);
     }
